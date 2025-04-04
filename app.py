@@ -85,8 +85,10 @@ def get_youtube_formats():
                 'filesize_approx': fmt.get('filesize_approx'), # Note: Can be None
                 'vcodec': fmt.get('vcodec'),
                 'acodec': fmt.get('acodec'),
-                'note': fmt.get('format_note', ''),
                 'tbr': fmt.get('tbr'), # Total bitrate
+                'abr': fmt.get('abr'), # Total bitrate
+                'vbr': fmt.get('vbr'), # Total bitrate
+                'note': fmt.get('format_note', ''),
                 'is_video_only' : fmt.get('vcodec') != 'none' and fmt.get('acodec') == 'none',
                 'is_audio_only' : fmt.get('vcodec') == 'none' and fmt.get('acodec') != 'none',
             })
