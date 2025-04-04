@@ -30,7 +30,7 @@ body {
 }
 
 .container {
-    max-width: 900px;
+    /* max-width: 900px; */
     margin: 20px auto;
     background-color: black;
     color: white;
@@ -220,7 +220,7 @@ h1 {
     font-size: 18px;
     font-weight: 500;
     margin-bottom: 15px;
-    color: var(--text);
+    color: white;
     text-align: center;
     display: none;
     /* Hidden initially */

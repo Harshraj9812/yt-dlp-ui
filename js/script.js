@@ -228,6 +228,12 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
+        // Validate URL
+        if (!currentVideoUrl || !isValidYouTubeUrl(currentVideoUrl)) {
+            showStatusMessage("Invalid or missing video URL. Please fetch formats again.", 'error');
+            return;
+        }
+
         // Extract selected formats (audio and video)
         const selectedFormats = selectedCheckboxes.map(checkbox => ({
             id: checkbox.value,
@@ -236,37 +242,36 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const audioFormat = selectedFormats.find(format => format.type === 'audio');
         const videoFormat = selectedFormats.find(format => format.type === 'video');
+        const bothFormat = selectedFormats.find(format => format.type === 'both');
 
-        // Validate URL and formats
-        if (!currentVideoUrl) {
-            console.error("Error: currentVideoUrl is empty.");
-            showStatusMessage("Video URL is missing. Please fetch formats again.", 'error');
-            return;
-        }
-        if (!audioFormat && !videoFormat) {
-            console.error("Error: No formats selected.");
-            showStatusMessage("Please select at least one format (audio or video).", 'warning');
+        // If no specific format type is selected, show error
+        if (!audioFormat && !videoFormat && !bothFormat) {
+            showStatusMessage("Please select a valid format.", 'error');
             return;
         }
 
         // Generate filename based on selected formats
         const suggestedFilename = generateFilename(
             currentVideoTitle,
-            videoFormat ? 'mp4' : (audioFormat ? audioFormat.ext : 'mp4')
+            videoFormat || bothFormat ? 'mp4' : (audioFormat ? 'mp3' : 'mp4')
         );
 
-        downloadBtn.disabled = true; // Disable while processing
+        downloadBtn.disabled = true;
         downloadBtn.textContent = 'Preparing Download...';
         hideStatusMessage();
 
         try {
-            // Debug: Log the request payload
+            // Construct request payload
             const requestBody = {
                 url: currentVideoUrl,
-                audio_format_id: audioFormat ? audioFormat.id : null,
-                video_format_id: videoFormat ? videoFormat.id : null,
+                format_id: bothFormat ? bothFormat.id : 
+                          (videoFormat && audioFormat) ? `${videoFormat.id}+${audioFormat.id}` :
+                          videoFormat ? videoFormat.id :
+                          audioFormat ? audioFormat.id : null,
                 filename: suggestedFilename
             };
+
+            // Remove audio/video format IDs since we're using the combined format_id
             console.log("Request Payload:", requestBody);
 
             // Send request to backend with selected formats
