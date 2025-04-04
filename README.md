@@ -92,7 +92,7 @@ See [LICENSE](LICENSE) for details.
 
 ---
 
-**Need help?** Open an [Issue](https://github.com/Harshraj9812/yt-dlp-gui/issues).  
+**Need help?** Open an [Issue](https://github.com/Harshraj9812/yt-dlp-ui/issues).  
 **Like the project?** ⭐ Star the repo!  
 
 ---
