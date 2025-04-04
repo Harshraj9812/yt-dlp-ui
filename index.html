@@ -290,6 +290,9 @@
                         <th>Size</th>
                         <th>VCodec</th>
                         <th>ACodec</th>
+                        <th>Total BR</th>
+                        <th>Audio BR</th>
+                        <th>Video BR</th>
                     </tr>
                 </thead>
                 <tbody id="format-table-body">
@@ -449,42 +452,75 @@
                 }
 
                 formats.forEach((format, index) => {
-                    // Skip formats without an ID or specific types if needed
                     if (!format.id) return;
-                    // Example: Skip manifest formats
-                    if (format.ext === 'mhtml' || format.id.includes('dash')) {
-                        // console.log(`Skipping format ID ${format.id} (manifest/dash)`);
-                        // return;
-                        // Instead of skipping, maybe just disable radio?
-                    }
 
+                    const fileSizeFormatted = format.filesize_approx ? formatBytes(format.filesize_approx) : 'N/A';
+                    if (fileSizeFormatted === 'N/A') return;
+
+                    const isAudioOnly = format.vcodec === 'none'; // Check if it's an audio-only format
+                    const isVideoOnly = format.acodec === 'none'; // Check if it's a video-only format
 
                     const row = document.createElement('tr');
-                    const resolutionNote = format.resolution || format.note || (format.is_audio_only ? 'Audio' : 'N/A');
-                    const fileSizeFormatted = format.filesize_approx ? formatBytes(format.filesize_approx) : 'N/A';
-                    const vcodecDisplay = format.vcodec === 'none' ? '-' : format.vcodec;
-                    const acodecDisplay = format.acodec === 'none' ? '-' : format.acodec;
-
                     row.innerHTML = `
-                        <td>
-                            <input type="radio" name="format_select" value="${format.id}" id="format_${index}">
-                        </td>
-                        <td style="display: none;"><label for="format_${index}">${format.id}</label></td>
-                        <td>${format.ext || 'N/A'}</td>
-                        <td>${resolutionNote}</td>
-                        <td>${format.fps || '-'}</td>
-                        <td>${fileSizeFormatted}</td>
-                        <td>${vcodecDisplay}</td>
-                        <td>${acodecDisplay}</td>
-                    `;
+            <td>
+                <input type="checkbox" name="format_select" value="${format.id}" id="format_${index}" data-type="${isAudioOnly ? 'audio' : isVideoOnly ? 'video' : 'both'}">
+            </td>
+            <td style="display: none;"><label for="format_${index}">${format.id}</label></td>
+            <td>${format.ext || 'N/A'}</td>
+            <td>${format.resolution || format.note || (isAudioOnly ? 'Audio' : 'N/A')}</td>
+            <td>${format.fps || '-'}</td>
+            <td>${fileSizeFormatted}</td>
+            <td>${format.vcodec === 'none' ? '-' : format.vcodec}</td>
+            <td>${format.acodec === 'none' ? '-' : format.acodec}</td>
+            <td>${format.tbr || '-'}</td>
+            <td>${format.abr || '-'}</td>
+            <td>${format.vbr || '-'}</td>
+        `;
 
-                    // Add event listener to the radio button
-                    const radioInput = row.querySelector('input[type="radio"]');
-                    radioInput.addEventListener('change', () => {
-                        if (radioInput.checked) {
-                            selectedFormatDetails = format; // Store the full format object
-                            downloadBtn.disabled = false; // Enable download button
-                            downloadSection.style.display = 'block';
+                    const checkboxInput = row.querySelector('input[type="checkbox"]');
+                    checkboxInput.addEventListener('change', () => {
+                        const selectedCheckboxes = Array.from(document.querySelectorAll('input[name="format_select"]:checked'));
+                        const selectedAudio = selectedCheckboxes.filter(input => input.dataset.type === 'audio');
+                        const selectedVideo = selectedCheckboxes.filter(input => input.dataset.type === 'video');
+
+                        if (checkboxInput.checked) {
+                            // If an audio format is selected, remove other audio formats
+                            if (checkboxInput.dataset.type === 'audio') {
+                                document.querySelectorAll('input[name="format_select"][data-type="audio"]').forEach(input => {
+                                    if (input !== checkboxInput) {
+                                        input.closest('tr').style.display = 'none'; // Hide the row
+                                    }
+                                });
+                            }
+                            // If a video format is selected, remove other video formats
+                            if (checkboxInput.dataset.type === 'video') {
+                                document.querySelectorAll('input[name="format_select"][data-type="video"]').forEach(input => {
+                                    if (input !== checkboxInput) {
+                                        input.closest('tr').style.display = 'none'; // Hide the row
+                                    }
+                                });
+                            }
+                        } else {
+                            // If the checkbox is unselected, revert the hidden rows
+                            if (checkboxInput.dataset.type === 'audio') {
+                                document.querySelectorAll('input[name="format_select"][data-type="audio"]').forEach(input => {
+                                    input.closest('tr').style.display = ''; // Show the row
+                                });
+                            }
+                            if (checkboxInput.dataset.type === 'video') {
+                                document.querySelectorAll('input[name="format_select"][data-type="video"]').forEach(input => {
+                                    input.closest('tr').style.display = ''; // Show the row
+                                });
+                            }
+                        }
+
+                        // Enable the download button if at least one checkbox is selected
+                        if (selectedCheckboxes.length > 0) {
+                            downloadBtn.disabled = false;
+                            downloadSection.style.display = 'block'; // Show the download section
+                        } else {
+                            downloadBtn.disabled = true;
+                            downloadSection.style.display = 'none'; // Hide the download section
                         }
                     });
 
@@ -495,33 +531,64 @@
             }
 
             async function handleDownload() {
-                if (!selectedFormatDetails || !currentVideoUrl) {
-                    showStatusMessage("Please select a format first.", 'warning');
+                // Get all selected checkboxes
+                const selectedCheckboxes = Array.from(document.querySelectorAll('input[name="format_select"]:checked'));
+                if (selectedCheckboxes.length === 0) {
+                    showStatusMessage("Please select at least one format.", 'warning');
                     return;
                 }
 
-                const formatId = selectedFormatDetails.id;
-                const suggestedFilename = generateFilename(currentVideoTitle, selectedFormatDetails.ext);
+                // Extract selected formats (audio and video)
+                const selectedFormats = selectedCheckboxes.map(checkbox => ({
+                    id: checkbox.value,
+                    type: checkbox.dataset.type
+                }));
+
+                const audioFormat = selectedFormats.find(format => format.type === 'audio');
+                const videoFormat = selectedFormats.find(format => format.type === 'video');
+
+                // Validate URL and formats
+                if (!currentVideoUrl) {
+                    console.error("Error: currentVideoUrl is empty.");
+                    showStatusMessage("Video URL is missing. Please fetch formats again.", 'error');
+                    return;
+                }
+                if (!audioFormat && !videoFormat) {
+                    console.error("Error: No formats selected.");
+                    showStatusMessage("Please select at least one format (audio or video).", 'warning');
+                    return;
+                }
+
+                // Generate filename based on selected formats
+                const suggestedFilename = generateFilename(
+                    currentVideoTitle,
+                    videoFormat ? 'mp4' : (audioFormat ? audioFormat.ext : 'mp4')
+                );
 
                 downloadBtn.disabled = true; // Disable while processing
                 downloadBtn.textContent = 'Preparing Download...';
                 hideStatusMessage();
 
                 try {
+                    // Debug: Log the request payload
+                    const requestBody = {
+                        url: currentVideoUrl,
+                        audio_format_id: audioFormat ? audioFormat.id : null,
+                        video_format_id: videoFormat ? videoFormat.id : null,
+                        filename: suggestedFilename
+                    };
+                    console.log("Request Payload:", requestBody);
+
+                    // Send request to backend with selected formats
                     const response = await fetch(`${BACKEND_URL}/download`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            url: currentVideoUrl,
-                            format_id: formatId,
-                            filename: suggestedFilename // Send suggestion to backend
-                        })
+                        body: JSON.stringify(requestBody)
                     });
 
                     if (!response.ok) {
                         let errorMsg = `Download failed with status: ${response.status}`;
                         try {
-                            // Try to get more specific error from backend JSON response
                             const errorData = await response.json();
                             errorMsg = errorData.error || errorMsg;
                         } catch (e) {
@@ -530,26 +597,23 @@
                         throw new Error(errorMsg);
                     }
 
-
                     // --- Successful Download Stream ---
-
-                    // 1. Get Filename from Header (Best Method)
                     const contentDisposition = response.headers.get('content-disposition');
                     let finalFilename = suggestedFilename; // Default
                     if (contentDisposition) {
                         const filenameMatch = contentDisposition.match(/filename\*?=['"]?([^'";]+)['"]?/);
                         if (filenameMatch && filenameMatch[1]) {
-                            // Decode URI component for potential UTF-8 filenames
                             finalFilename = decodeURIComponent(filenameMatch[1]);
                         }
                     }
+
                     console.log(`Downloading as: ${finalFilename}`);
 
-                    // 2. Get data as Blob
+                    // Get data as Blob
                     downloadBtn.textContent = 'Downloading...';
                     const blob = await response.blob();
 
-                    // 3. Create temporary link and trigger click
+                    // Create temporary link and trigger download
                     const downloadUrl = window.URL.createObjectURL(blob);
                     const a = document.createElement('a');
                     a.style.display = 'none';
@@ -558,12 +622,11 @@
                     document.body.appendChild(a);
                     a.click();
 
-                    // 4. Clean up
+                    // Clean up
                     window.URL.revokeObjectURL(downloadUrl);
                     a.remove();
-                    // Show temporary success message
                     showStatusMessage(`Successfully started download: ${finalFilename}`, 'success');
-                    setTimeout(hideStatusMessage, 5000); // Hide after 5 seconds
+                    setTimeout(hideStatusMessage, 5000);
 
                 } catch (error) {
                     console.error("Download error:", error);
