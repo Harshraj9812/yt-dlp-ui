@@ -283,11 +283,11 @@
                 <thead>
                     <tr>
                         <th>Select</th>
-                        <th>ID</th>
+                        <th style="display: none;">ID</th>
                         <th>Ext</th>
                         <th>Resolution / Note</th>
                         <th>FPS</th>
-                        <th>Size ~</th>
+                        <th>Size</th>
                         <th>VCodec</th>
                         <th>ACodec</th>
                     </tr>
@@ -469,7 +469,7 @@
                         <td>
                             <input type="radio" name="format_select" value="${format.id}" id="format_${index}">
                         </td>
-                        <td><label for="format_${index}">${format.id}</label></td>
+                        <td style="display: none;"><label for="format_${index}">${format.id}</label></td>
                         <td>${format.ext || 'N/A'}</td>
                         <td>${resolutionNote}</td>
                         <td>${format.fps || '-'}</td>
