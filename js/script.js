@@ -155,7 +155,6 @@ document.addEventListener('DOMContentLoaded', function () {
     <td>
         <input type="checkbox" name="format_select" value="${format.id}" id="format_${index}" data-type="${isAudioOnly ? 'audio' : isVideoOnly ? 'video' : 'both'}">
     </td>
-    <td style="display: none;"><label for="format_${index}">${format.id}</label></td>
     <td>${format.ext || 'N/A'}</td>
     <td>${format.resolution || format.note || (isAudioOnly ? 'Audio' : 'N/A')}</td>
     <td>${format.fps || '-'}</td>
@@ -165,6 +164,7 @@ document.addEventListener('DOMContentLoaded', function () {
     <td>${format.tbr || '-'}</td>
     <td>${format.abr || '-'}</td>
     <td>${format.vbr || '-'}</td>
+    <td>${format.language || '-'}</td>
 `;
 
             const checkboxInput = row.querySelector('input[type="checkbox"]');

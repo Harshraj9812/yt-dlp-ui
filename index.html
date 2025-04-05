@@ -4,14 +4,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple YouTube Downloader</title>
+    <title>YouTube Downloader</title>
+    <link rel="icon" href="./css/favicon.png" type="image/x-icon">
     <link rel="stylesheet" href="./css/styles.css">
 
 </head>
 
 <body>
     <div class="container">
-        <h1>Simple YouTube Downloader</h1>
+        <h1>YouTube Downloader</h1>
 
         <!-- Status Message Area -->
         <div class="status-message" id="status-message"></div>
@@ -35,18 +36,18 @@
         <div class="format-table-container">
             <table class="format-table" id="format-table">
                 <thead>
-                    <tr>
+                    <tr style="position: sticky; top: 0; background-color: white;">
                         <th>Select</th>
-                        <th style="display: none;">ID</th>
                         <th>Ext</th>
-                        <th>Resolution / Note</th>
+                        <th>Resolution</th>
                         <th>FPS</th>
                         <th>Size</th>
-                        <th>VCodec</th>
-                        <th>ACodec</th>
-                        <th>Total BR</th>
-                        <th>Audio BR</th>
-                        <th>Video BR</th>
+                        <th>Video Codec</th>
+                        <th>Audio Codec</th>
+                        <th>Total Bit Rate</th>
+                        <th>Audio Bit Rate</th>
+                        <th>Video Bit Rate</th>
+                        <th>Audio Language</th>
                     </tr>
                 </thead>
                 <tbody id="format-table-body">
@@ -60,6 +61,7 @@
             <button class="btn btn-danger" id="download-btn" disabled>Download Selected Format</button>
         </div>
     </div>
+    <script src="./js/script.js"></script>
     <script src="./js/script.js"></script>
 </body>
 
