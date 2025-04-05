@@ -91,6 +91,7 @@ def get_youtube_formats():
                 'note': fmt.get('format_note', ''),
                 'is_video_only' : fmt.get('vcodec') != 'none' and fmt.get('acodec') == 'none',
                 'is_audio_only' : fmt.get('vcodec') == 'none' and fmt.get('acodec') != 'none',
+                'language' : fmt.get('language')
             })
 
         return jsonify({
