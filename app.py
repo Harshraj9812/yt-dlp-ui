@@ -3,7 +3,7 @@ import json
 import re
 import os
 import mimetypes # To guess file type for download
-from flask import Flask, request, jsonify, Response, stream_with_context
+from flask import Flask, request, jsonify, Response, stream_with_context, send_from_directory
 from flask_cors import CORS
 
 # --- Configuration ---
@@ -38,6 +38,22 @@ def validate_youtube_url(url):
     return any(re.match(pattern, url) for pattern in patterns)
 
 # --- API Endpoints ---
+
+@app.route('/')
+def serve_index():
+    return send_from_directory('static', 'index.html')
+
+@app.route('/css/<path:filename>')
+def serve_css(filename):
+    return send_from_directory('static/css', filename)
+
+@app.route('/js/<path:filename>')
+def serve_js(filename):
+    return send_from_directory('static/js', filename)
+
+@app.route('/css/favicon.png')
+def css_favicon():
+    return send_from_directory('static/css', 'favicon.png', mimetype='image/png')
 
 @app.route('/get_formats', methods=['POST'])
 def get_youtube_formats():
@@ -204,4 +220,4 @@ def download_video():
 if __name__ == '__main__':
     # Use 0.0.0.0 to make it accessible on your network (use with caution)
     # Use 127.0.0.1 for local access only
-    app.run(host='127.0.0.1', port=5000, debug=True) # Turn debug=False for production
+    app.run(host='127.0.0.1', port=8000, debug=True) # Turn debug=False for production
