@@ -218,6 +218,4 @@ def download_video():
 
 # --- Run the App ---
 if __name__ == '__main__':
-    # Use 0.0.0.0 to make it accessible on your network (use with caution)
-    # Use 127.0.0.1 for local access only
-    app.run(host='127.0.0.1', port=8000, debug=True) # Turn debug=False for production
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 10000)))
