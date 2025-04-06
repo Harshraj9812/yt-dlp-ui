@@ -1,7 +1,11 @@
 document.addEventListener('DOMContentLoaded', function () {
     // --- Configurables ---
-    const BACKEND_URL = process.env.BACKEND_URL || 'https://yt-dlp-ui-9vms.onrender.com'; // Your Flask backend URL
-    console.info("Backend URL:", BACKEND_URL);
+    // Your Flask backend URL
+    // Auto-detect environment (works everywhere)
+    const BACKEND_URL = window.location.hostname === 'localhost'
+        ? 'http://localhost:10000'               // Local Docker
+        : 'https://yt-dlp-ui-9vms.onrender.com' // Render production
+    console.info ("HostName - ",BACKEND_URL);
 
     // --- DOM Elements ---
     const urlInput = document.getElementById('youtube-url');

@@ -1,0 +1,6 @@
+services:
+  app:
+    image: yt-dlp-ui:latest
+    container_name: yt-dlp-web
+    ports:
+      - "10000:10000"
