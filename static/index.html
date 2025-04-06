@@ -1,42 +1,48 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>YouTube Downloader</title>
     <link rel="icon" href="/css/favicon.png" type="image/x-icon">
     <link rel="stylesheet" href="/css/styles.css">
-
 </head>
-
 <body>
     <div class="container">
         <h1>YouTube Downloader</h1>
-
         <!-- Status Message Area -->
         <div class="status-message" id="status-message"></div>
-
         <!-- URL Input -->
         <div class="input-group">
             <input type="text" id="youtube-url" placeholder="Paste YouTube Video URL here..." autocomplete="off">
             <button class="btn btn-primary" id="get-formats-btn">Get Formats</button>
         </div>
-
         <!-- Loading Indicator -->
         <div class="loading" id="loading">
             <div class="loading-spinner"></div>
             <p>Fetching video information...</p>
         </div>
-
         <!-- Video Title Display -->
         <div class="video-title" id="video-title"></div>
-
-        <!-- Format Selection Table -->
-        <div class="format-table-container">
-            <table class="format-table" id="format-table">
+        <!-- Tab Navigation -->
+        <div class="tab-container">
+            <div class="tab-buttons">
+                <button class="tab-btn active" data-tab="combined">Combined</button>
+                <button class="tab-btn" data-tab="video">Video Only</button>
+                <button class="tab-btn" data-tab="audio">Audio Only</button>
+            </div>
+        </div>
+        <div class="help-text">
+            <p><strong>Tip:</strong> Select one video and one audio format to combine them, or select a combined format.</p>
+        </div>
+        
+        <!-- Combined Formats Table -->
+        <div class="format-table-container tab-content active" id="combined-tab">
+            <h3>Combined Formats (Video + Audio)</h3>
+            <table class="format-table" id="combined-format-table">
+                <!-- Table content will be populated by JavaScript -->
                 <thead>
-                    <tr style="position: sticky; top: 0; background-color: white;">
+                    <tr>
                         <th>Select</th>
                         <th>Ext</th>
                         <th>Resolution</th>
@@ -44,24 +50,62 @@
                         <th>Size</th>
                         <th>Video Codec</th>
                         <th>Audio Codec</th>
-                        <th>Total Bit Rate</th>
-                        <th>Audio Bit Rate</th>
-                        <th>Video Bit Rate</th>
-                        <th>Audio Language</th>
+                        <th>Total Bitrate</th>
+                        <th>Audio Bitrate</th>
+                        <th>Video Bitrate</th>
+                        <th>Language</th>
                     </tr>
                 </thead>
-                <tbody id="format-table-body">
-                    <!-- Format options will be dynamically added here -->
-                </tbody>
+                <tbody id="combined-format-table-body"></tbody>
             </table>
+            <div class="no-formats" id="no-combined-formats">No combined formats available</div>
         </div>
-
+        
+        <!-- Video Only Formats Table -->
+        <div class="format-table-container tab-content" id="video-tab">
+            <h3>Video Only Formats</h3>
+            <table class="format-table" id="video-format-table">
+                <thead>
+                    <tr>
+                        <th>Select</th>
+                        <th>Ext</th>
+                        <th>Resolution</th>
+                        <th>FPS</th>
+                        <th>Size</th>
+                        <th>Video Codec</th>
+                        <th>Bitrate</th>
+                    </tr>
+                </thead>
+                <tbody id="video-format-table-body"></tbody>
+            </table>
+            <div class="no-formats" id="no-video-formats">No video-only formats available</div>
+        </div>
+        
+        <!-- Audio Only Formats Table -->
+        <div class="format-table-container tab-content" id="audio-tab">
+            <h3>Audio Only Formats</h3>
+            <table class="format-table" id="audio-format-table">
+                <thead>
+                    <tr>
+                        <th>Select</th>
+                        <th>Ext</th>
+                        <th>Size</th>
+                        <th>Codec</th>
+                        <th>Bitrate</th>
+                        <th>Language</th>
+                    </tr>
+                </thead>
+                <tbody id="audio-format-table-body"></tbody>
+            </table>
+            <div class="no-formats" id="no-audio-formats">No audio-only formats available</div>
+        </div>
+        
         <!-- Download Button -->
         <div class="download-section" id="download-section">
             <button class="btn btn-danger" id="download-btn" disabled>Download Selected Format</button>
         </div>
     </div>
+    
     <script src="/js/script.js"></script>
 </body>
-
 </html>
