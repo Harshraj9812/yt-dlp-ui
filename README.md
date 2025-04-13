@@ -12,6 +12,24 @@ A simple, cross-platform graphical user interface (GUI) for **yt-dlp**, the powe
 
 ---
 
+## Command to Run on Local System
+- Create a Python Virtual Environment
+    ```bash
+    python3 -m venv .venv
+    ```
+- Activate the Virtual Environment
+    ```bash
+    source .venv/bin/activate  # Linux/macOS | venv\Scripts\activate on Windows
+    ```
+- Install the required packages
+    ```bash
+    pip install -r requirements.txt
+    ```
+- Run the application
+    ```bash
+    python3 app.py
+    ```
+
 ## **Installation**  
 
 ### **Prerequisites**  
